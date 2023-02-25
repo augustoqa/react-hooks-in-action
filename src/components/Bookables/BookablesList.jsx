@@ -3,15 +3,24 @@ import { useState } from 'react'
 import { FaArrowRight } from 'react-icons/all'
 
 export default function BookablesList() {
-  const group = 'Rooms'
+  const [group, setGroup] = useState('Kit')
   const bookablesInGroup = bookables.filter((b) => b.group === group)
-  const [bookableIndex, setBookableIndex] = useState(1)
+  const [bookableIndex, setBookableIndex] = useState(0)
+  const groups = [...new Set(bookables.map((b) => b.group))]
 
   function nextBookable() {
     setBookableIndex((i) => (i + 1) % bookablesInGroup.length)
   }
+
   return (
     <div>
+      <select value={group} onChange={(e) => setGroup(e.target.value)}>
+        {groups.map((g) => (
+          <option value={g} key={g}>
+            {g}
+          </option>
+        ))}
+      </select>
       <ul className="bookables items-list-nav">
         {bookablesInGroup.map((b, i) => (
           <li key={b.id} className={i === bookableIndex ? 'selected' : null}>
