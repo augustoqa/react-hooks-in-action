@@ -1,24 +1,46 @@
 import { bookables, sessions, days } from '../../static.json'
-import { useState, Fragment } from 'react'
+import { useReducer, Fragment } from 'react'
 import { FaArrowRight } from 'react-icons/all'
 
+import reducer from './reducer.js'
+
+const initialState = {
+  group: 'Rooms',
+  bookableIndex: 0,
+  hasDetails: true,
+  bookables,
+}
+
 export default function BookablesList() {
-  const [group, setGroup] = useState('Kit')
+  const [state, dispatch] = useReducer(reducer, initialState)
+
+  const { group, bookableIndex, bookables, hasDetails } = state
+
   const bookablesInGroup = bookables.filter((b) => b.group === group)
-  const [bookableIndex, setBookableIndex] = useState(0)
   const groups = [...new Set(bookables.map((b) => b.group))]
 
   const bookable = bookablesInGroup[bookableIndex]
 
-  const [hasDetails, setHasDetails] = useState(false)
+  function changeGroup(e) {
+    dispatch({
+      type: 'SET_GROUP',
+      payload: e.target.value,
+    })
+  }
 
-  function changeGroup(event) {
-    setGroup(event.target.value)
-    setBookableIndex(0)
+  function changeBookable(selectedIndex) {
+    dispatch({
+      type: 'SET_BOOKABLE',
+      payload: selectedIndex,
+    })
   }
 
   function nextBookable() {
-    setBookableIndex((i) => (i + 1) % bookablesInGroup.length)
+    dispatch({ type: 'NEXT_BOOKABLE' })
+  }
+
+  function toggleDetails() {
+    dispatch({ type: 'TOGGLE_HAS_DETAILS' })
   }
 
   return (
@@ -34,7 +56,7 @@ export default function BookablesList() {
         <ul className="bookables items-list-nav">
           {bookablesInGroup.map((b, i) => (
             <li key={b.id} className={i === bookableIndex ? 'selected' : null}>
-              <button className="btn" onClick={() => setBookableIndex(i)}>
+              <button className="btn" onClick={() => changeBookable(i)}>
                 {b.title}
               </button>
             </li>
@@ -57,7 +79,7 @@ export default function BookablesList() {
                   <input
                     type="checkbox"
                     checked={hasDetails}
-                    onChange={() => setHasDetails((has) => !has)}
+                    onChange={toggleDetails}
                   />
                   Show Details
                 </label>
