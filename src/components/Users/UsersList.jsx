@@ -1,11 +1,21 @@
-import { users } from '../../static.json'
-import { useState, Fragment } from 'react'
+import { useState, Fragment, useEffect } from 'react'
+import Spinner from '../UI/Spinner.jsx'
 
 export default function UsersList() {
+  const [users, setUsers] = useState(null)
   const [userIndex, setUserIndex] = useState(0)
 
-  const user = users[userIndex]
-  console.log(user)
+  useEffect(() => {
+    fetch('http://localhost:3001/users')
+      .then((resp) => resp.json())
+      .then((data) => setUsers(data))
+  }, [])
+
+  const user = users && users[userIndex]
+
+  if (user === null) {
+    return <Spinner />
+  }
 
   return (
     <Fragment>
