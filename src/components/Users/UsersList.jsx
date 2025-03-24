@@ -1,20 +1,33 @@
 import { useState, Fragment, useEffect } from 'react'
 import Spinner from '../UI/Spinner.jsx'
+import getData from '../../utils/api.js'
 
 export default function UsersList() {
   const [users, setUsers] = useState(null)
   const [userIndex, setUserIndex] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    fetch('http://localhost:3001/users')
-      .then((resp) => resp.json())
-      .then((data) => setUsers(data))
+    setIsLoading(true)
+    getData('http://localhost:3001/users')
+      .then((users) => setUsers(users))
+      .catch((error) => setError(error))
+      .finally(() => setIsLoading(false))
   }, [])
 
   const user = users && users[userIndex]
 
-  if (user === null) {
-    return <Spinner />
+  if (error) {
+    return <p>{error.message}</p>
+  }
+
+  if (isLoading) {
+    return (
+      <p>
+        <Spinner /> Loading users...
+      </p>
+    )
   }
 
   return (
